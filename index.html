@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeForge — C++ Assessment Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root {
+    --bg:       #0a0c10;
+    --surface:  #111318;
+    --panel:    #16191f;
+    --border:   #1e2228;
+    --border2:  #2a2f3a;
+    --accent:   #00e5ff;
+    --accent2:  #7c3aed;
+    --green:    #00d68f;
+    --red:      #ff4757;
+    --yellow:   #ffd32a;
+    --text:     #e2e8f0;
+    --muted:    #64748b;
+    --muted2:   #94a3b8;
+    --easy:     #00d68f;
+    --medium:   #ffd32a;
+    --hard:     #ff4757;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 1000; opacity: 0.4;
+  }
+
+  /* ══════════ SCREENS ══════════ */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; }
+
+  /* ══════════ LOGIN SCREEN ══════════ */
+  #loginScreen {
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,229,255,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(124,58,237,0.06) 0%, transparent 50%),
+                var(--bg);
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .login-wrapper {
+    width: 100%;
+    max-width: 460px;
+    padding: 2rem;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .logo-block {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .logo-icon {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 16px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 40px rgba(0,229,255,0.25);
+  }
+
+  .logo-block h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(90deg, var(--accent), #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .logo-block p {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 0.3rem;
+  }
+
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+  }
+
+  .tab-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 4px;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 0.6rem;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    background: transparent;
+    color: var(--muted);
+  }
+
+  .tab-btn.active {
+    background: var(--panel);
+    color: var(--accent);
+    box-shadow: 0 0 0 1px var(--border2);
+  }
+
+  .form-group { margin-bottom: 1.1rem; }
+
+  .form-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .form-group input, .form-group select {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,229,255,0.1);
+  }
+
+  .form-group select option { background: var(--bg); }
+
+  .btn-primary {
+    width: 100%;
+    padding: 0.85rem;
+    background: linear-gradient(135deg, var(--accent), #00b4d8);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 0.5rem;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(0,229,255,0.3);
+  }
+
+  .login-hint {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 1.2rem;
+  }
+
+  /* ══════════ MAIN APP LAYOUT ══════════ */
+  #appScreen { flex-direction: column; }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 1.5rem;
+    height: 56px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-shrink: 0;
+  }
+
+  .topbar-logo {
+    font-weight: 800;
+    font-size: 1.1rem;
+    background: linear-gradient(90deg, var(--accent), #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+    margin-right: 0.5rem;
+  }
+
+  .topbar-sep { width: 1px; height: 20px; background: var(--border2); }
+
+  .nav-tabs { display: flex; gap: 0.25rem; flex: 1; }
+
+  .nav-tab {
+    padding: 0.4rem 0.9rem;
+    border-radius: 7px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.82rem;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+
+  .nav-tab:hover { color: var(--text); background: var(--panel); }
+  .nav-tab.active { color: var(--accent); background: rgba(0,229,255,0.08); }
+
+  .topbar-user {
+    display: flex; align-items: center; gap: 0.6rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted2);
+  }
+
+  .user-avatar {
+    width: 30px; height: 30px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.75rem; color: #fff;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .btn-icon {
+    padding: 0.4rem 0.8rem;
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    transition: all 0.2s;
+  }
+
+  .btn-icon:hover { color: var(--red); border-color: var(--red); }
+
+  /* ── VIEWS ── */
+  .view { display: none; flex: 1; overflow: hidden; }
+  .view.active { display: flex; }
+
+  /* ══════════ TASK LIST VIEW ══════════ */
+  #taskListView { flex-direction: column; overflow-y: auto; }
+
+  .view-header {
+    padding: 1.5rem 2rem 1rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .view-header h2 {
+    font-size: 1.3rem; font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .view-header p { color: var(--muted); font-size: 0.85rem; margin-top: 0.2rem; }
+
+  .filter-row {
+    display: flex; gap: 0.5rem;
+    padding: 0.75rem 2rem;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+
+  .filter-pill {
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--muted2);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    transition: all 0.15s;
+  }
+
+  .filter-pill:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-pill.active { background: rgba(0,229,255,0.1); border-color: var(--accent); color: var(--accent); }
+
+  .tasks-grid {
+    padding: 1.5rem 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    align-content: start;
+  }
+
+  .task-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .task-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-clr, var(--accent)), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .task-card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .task-card:hover::before { opacity: 1; }
+
+  .task-card.solved { border-color: rgba(0,214,143,0.3); }
+  .task-card.solved::before { opacity: 1; --accent-clr: var(--green); }
+
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.6rem; }
+
+  .task-title { font-weight: 700; font-size: 0.95rem; letter-spacing: -0.01em; }
+
+  .diff-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    padding: 0.2rem 0.55rem;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
+
+  .diff-Easy   { background: rgba(0,214,143,0.15); color: var(--easy); }
+  .diff-Medium { background: rgba(255,211,42,0.15); color: var(--medium); }
+  .diff-Hard   { background: rgba(255,71,87,0.15);  color: var(--hard); }
+
+  .task-desc { color: var(--muted2); font-size: 0.82rem; line-height: 1.5; margin-bottom: 0.8rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+  .card-meta { display: flex; align-items: center; gap: 0.8rem; }
+
+  .meta-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    display: flex; align-items: center; gap: 0.3rem;
+  }
+
+  .solved-check { margin-left: auto; color: var(--green); font-size: 0.8rem; }
+
+  .points-badge {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ══════════ TASK DETAIL VIEW ══════════ */
+  #taskDetailView { flex-direction: row; }
+
+  .detail-left {
+    width: 42%;
+    min-width: 320px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .detail-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 0.8rem;
+  }
+
+  .btn-back {
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    color: var(--muted);
+    padding: 0.35rem 0.7rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 0.3rem;
+  }
+
+  .btn-back:hover { color: var(--text); border-color: var(--text); }
+
+  .detail-title { font-weight: 700; font-size: 1rem; flex: 1; }
+
+  .detail-body { flex: 1; overflow-y: auto; padding: 1.5rem; }
+
+  .detail-section { margin-bottom: 1.5rem; }
+
+  .detail-section h3 {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 0.6rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+
+  .detail-section h3::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .detail-section p { color: var(--muted2); font-size: 0.85rem; line-height: 1.7; white-space: pre-wrap; }
+
+  .code-block {
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--accent);
+    white-space: pre-wrap;
+    line-height: 1.6;
+  }
+
+  .io-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem; }
+  .io-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--muted); margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .detail-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .editor-topbar {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.7rem;
+    flex-shrink: 0;
+    background: var(--surface);
+  }
+
+  .lang-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    background: rgba(0,229,255,0.1);
+    color: var(--accent);
+    padding: 0.25rem 0.6rem;
+    border-radius: 5px;
+    border: 1px solid rgba(0,229,255,0.2);
+  }
+
+  .editor-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #codeEditor {
+    width: 100%;
+    height: 100%;
+    background: #0d0f14;
+    color: #abb2bf;
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    padding: 1rem;
+    tab-size: 4;
+  }
+
+  .output-panel {
+    height: 180px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .output-tabs {
+    display: flex; align-items: center;
+    padding: 0 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+    gap: 0.5rem;
+    height: 36px;
+  }
+
+  .output-tab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    padding: 0 0.6rem;
+    height: 100%;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 0.35rem;
+  }
+
+  .output-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .output-content {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    overflow-y: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: var(--muted2);
+    background: var(--bg);
+  }
+
+  .test-result-row {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.3rem 0;
+    font-size: 0.78rem;
+  }
+
+  .test-result-row .icon { width: 16px; text-align: center; }
+  .pass { color: var(--green); }
+  .fail { color: var(--red); }
+  .pending { color: var(--muted); }
+
+  .submit-bar {
+    padding: 0.7rem 1rem;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.7rem;
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+
+  .btn-run {
+    padding: 0.5rem 1.2rem;
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text);
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.82rem;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+
+  .btn-run:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-submit {
+    padding: 0.5rem 1.5rem;
+    background: linear-gradient(135deg, var(--green), #00b377);
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+
+  .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,214,143,0.3); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .run-status {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  /* ══════════ SUBMISSIONS VIEW ══════════ */
+  #submissionsView { flex-direction: column; overflow-y: auto; }
+
+  .submissions-table-wrap {
+    padding: 1.5rem 2rem;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+
+  thead th {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  tbody tr:hover { background: var(--surface); }
+
+  tbody td {
+    padding: 0.7rem 0.8rem;
+    color: var(--muted2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+  }
+
+  tbody td:first-child { color: var(--text); font-weight: 500; font-family: 'Syne', sans-serif; }
+
+  .status-badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 600;
+  }
+
+  .status-AC  { background: rgba(0,214,143,0.15); color: var(--green); }
+  .status-WA  { background: rgba(255,71,87,0.15);  color: var(--red); }
+  .status-ERR { background: rgba(255,211,42,0.15); color: var(--yellow); }
+
+  .export-row {
+    padding: 0.75rem 2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .btn-export {
+    padding: 0.45rem 1.1rem;
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    color: var(--muted2);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+
+  .btn-export:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ══════════ TEACHER VIEW ══════════ */
+  #teacherView { flex-direction: column; overflow-y: auto; }
+
+  .teacher-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem 2rem;
+  }
+
+  @media (max-width: 900px) { .teacher-grid { grid-template-columns: 1fr; } }
+
+  .teacher-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .teacher-card-header {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid var(--border);
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+
+  .teacher-card-header i { color: var(--accent); }
+
+  .teacher-card-body { padding: 1.2rem; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+
+  textarea.form-input {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    min-height: 80px;
+  }
+
+  textarea.form-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,229,255,0.1);
+  }
+
+  input.form-input {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,229,255,0.1); }
+
+  select.form-input {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    outline: none;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.4rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .form-field { margin-bottom: 0.9rem; }
+
+  .test-case-row {
+    display: grid; grid-template-columns: 1fr 1fr auto;
+    gap: 0.5rem; margin-bottom: 0.5rem; align-items: end;
+  }
+
+  .btn-add-test {
+    padding: 0.4rem 0.9rem;
+    background: rgba(0,229,255,0.08);
+    border: 1px dashed rgba(0,229,255,0.3);
+    border-radius: 7px;
+    color: var(--accent);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    transition: all 0.15s;
+    margin-bottom: 0.8rem;
+  }
+
+  .btn-add-test:hover { background: rgba(0,229,255,0.15); }
+
+  .btn-remove {
+    padding: 0.4rem 0.6rem;
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    color: var(--red);
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.15s;
+  }
+
+  .btn-remove:hover { background: rgba(255,71,87,0.1); }
+
+  .btn-publish {
+    padding: 0.6rem 1.4rem;
+    background: linear-gradient(135deg, var(--accent2), #9333ea);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+
+  .btn-publish:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,58,237,0.3); }
+
+  .json-export-area {
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--green);
+    white-space: pre-wrap;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+  }
+
+  .task-manage-row {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-bottom: 0.5rem;
+    background: var(--bg);
+    font-size: 0.82rem;
+  }
+
+  .task-manage-row span { flex: 1; font-family: 'JetBrains Mono', monospace; }
+
+  /* ══════════ STATS BAR ══════════ */
+  .stats-row {
+    display: flex; gap: 1.5rem;
+    padding: 0.75rem 2rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .stat-item { display: flex; flex-direction: column; gap: 0.1rem; }
+  .stat-val { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em; }
+  .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* ══════════ TOAST ══════════ */
+  .toast {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    padding: 0.8rem 1.2rem;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 500;
+    z-index: 9999;
+    animation: toastIn 0.3s ease;
+    max-width: 320px;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+
+  @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .toast-success { background: rgba(0,214,143,0.15); border: 1px solid rgba(0,214,143,0.4); color: var(--green); }
+  .toast-error   { background: rgba(255,71,87,0.15);  border: 1px solid rgba(255,71,87,0.4);  color: var(--red); }
+  .toast-info    { background: rgba(0,229,255,0.1);   border: 1px solid rgba(0,229,255,0.3);  color: var(--accent); }
+
+  /* ══════════ SPINNER ══════════ */
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(0,229,255,0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: inline-block;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ══════════ SCROLLBAR ══════════ */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* ══════════ PROGRESS BAR ══════════ */
+  .progress-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 0.8rem; padding: 3rem;
+    color: var(--muted); text-align: center;
+  }
+
+  .empty-state i { font-size: 2.5rem; opacity: 0.3; }
+  .empty-state p { font-size: 0.85rem; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    #taskDetailView { flex-direction: column; }
+    .detail-left { width: 100%; min-width: unset; border-right: none; border-bottom: 1px solid var(--border); max-height: 40vh; }
+    .tasks-grid { grid-template-columns: 1fr; padding: 1rem; }
+    .teacher-grid { grid-template-columns: 1fr; }
+    .stats-row { gap: 1rem; padding: 0.75rem 1rem; }
+    .view-header { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN SCREEN ══════════ -->
+<div id="loginScreen" class="screen active">
+  <div class="login-wrapper">
+    <div class="logo-block">
+      <div class="logo-icon">⚡</div>
+      <h1>CodeForge</h1>
+      <p>// C++ Assessment Lab</p>
+    </div>
+    <div class="login-card">
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="switchLoginTab('student')">Student</button>
+        <button class="tab-btn" onclick="switchLoginTab('teacher')">Teacher</button>
+      </div>
+
+      <!-- Student login -->
+      <div id="studentLoginForm">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="studentName" placeholder="e.g. Juan dela Cruz" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>Student ID</label>
+          <input type="text" id="studentId" placeholder="e.g. 2023-00001" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>Section</label>
+          <select id="studentSection">
+            <option value="">-- Select Section --</option>
+            <option>BSIT 1-A</option>
+            <option>BSIT 1-B</option>
+            <option>BSIT 2-A</option>
+            <option>BSIT 2-B</option>
+            <option>BSIT 3-A</option>
+          </select>
+        </div>
+        <button class="btn-primary" onclick="loginStudent()">
+          <i class="fas fa-terminal"></i> Enter Lab
+        </button>
+      </div>
+
+      <!-- Teacher login -->
+      <div id="teacherLoginForm" style="display:none">
+        <div class="form-group">
+          <label>Teacher Password</label>
+          <input type="password" id="teacherPass" placeholder="••••••••" autocomplete="off">
+        </div>
+        <button class="btn-primary" onclick="loginTeacher()">
+          <i class="fas fa-chalkboard-teacher"></i> Teacher Dashboard
+        </button>
+      </div>
+
+      <p class="login-hint">
+        Tasks loaded from: <span id="tasksSourceHint" style="color:var(--accent)">tasks.json</span>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ APP SCREEN ══════════ -->
+<div id="appScreen" class="screen">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <span class="topbar-logo">⚡ CodeForge</span>
+    <div class="topbar-sep"></div>
+    <div class="nav-tabs" id="navTabs">
+      <button class="nav-tab active" onclick="showView('taskListView')" data-view="taskListView">
+        <i class="fas fa-list-ul"></i> Problems
+      </button>
+      <button class="nav-tab" onclick="showView('submissionsView')" data-view="submissionsView">
+        <i class="fas fa-history"></i> My Submissions
+      </button>
+    </div>
+    <div class="topbar-user">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <span id="userLabel">—</span>
+      <button class="btn-icon" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Out</button>
+    </div>
+  </div>
+
+  <!-- TASK LIST VIEW -->
+  <div id="taskListView" class="view active">
+    <div class="view-header">
+      <h2 id="taskListTitle">C++ Problems</h2>
+      <p id="taskListSub">Select a problem to start coding</p>
+    </div>
+    <div class="stats-row" id="statsRow"></div>
+    <div class="filter-row" id="filterRow">
+      <button class="filter-pill active" onclick="filterTasks('All', this)">All</button>
+    </div>
+    <div class="tasks-grid" id="tasksGrid"></div>
+  </div>
+
+  <!-- TASK DETAIL VIEW -->
+  <div id="taskDetailView" class="view">
+    <div class="detail-left">
+      <div class="detail-header">
+        <button class="btn-back" onclick="showView('taskListView')">
+          <i class="fas fa-arrow-left"></i> Back
+        </button>
+        <span class="detail-title" id="detailTitle">—</span>
+        <span class="diff-badge" id="detailDiff"></span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-section">
+          <h3><i class="fas fa-align-left"></i> Problem</h3>
+          <p id="detailDesc"></p>
+        </div>
+        <div class="detail-section">
+          <h3><i class="fas fa-ruler-combined"></i> Constraints</h3>
+          <p id="detailConstraints"></p>
+        </div>
+        <div class="detail-section">
+          <h3><i class="fas fa-flask"></i> Sample I/O</h3>
+          <div class="io-pair">
+            <div>
+              <div class="io-label">Input</div>
+              <div class="code-block" id="detailSampleIn">—</div>
+            </div>
+            <div>
+              <div class="io-label">Output</div>
+              <div class="code-block" id="detailSampleOut">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <h3><i class="fas fa-coins"></i> Points</h3>
+          <p id="detailPoints" style="color:var(--accent); font-weight:700; font-family:'JetBrains Mono',monospace;"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-right">
+      <div class="editor-topbar">
+        <span class="lang-tag">C++ (GCC)</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--muted);" id="editorTaskLabel">—</span>
+      </div>
+      <div class="editor-area">
+        <textarea id="codeEditor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+      </div>
+      <div class="output-panel">
+        <div class="output-tabs">
+          <button class="output-tab active" onclick="switchOutputTab('run', this)"><i class="fas fa-play"></i> Run Output</button>
+          <button class="output-tab" onclick="switchOutputTab('judge', this)"><i class="fas fa-gavel"></i> Judge Results</button>
+        </div>
+        <div class="output-content" id="runOutput">
+          <span style="color:var(--muted)">// Output will appear here after running...</span>
+        </div>
+        <div class="output-content" id="judgeOutput" style="display:none">
+          <span style="color:var(--muted)">// Submit to see test case results...</span>
+        </div>
+      </div>
+      <div class="submit-bar">
+        <button class="btn-run" onclick="runCode(false)" id="runBtn">
+          <i class="fas fa-play"></i> Run
+        </button>
+        <button class="btn-submit" onclick="runCode(true)" id="submitBtn">
+          <i class="fas fa-paper-plane"></i> Submit
+        </button>
+        <span class="run-status" id="runStatus"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMISSIONS VIEW -->
+  <div id="submissionsView" class="view">
+    <div class="view-header">
+      <h2>My Submissions</h2>
+      <p>History of all your attempts</p>
+    </div>
+    <div class="export-row">
+      <button class="btn-export" onclick="exportMyCSV()">
+        <i class="fas fa-download"></i> Export CSV
+      </button>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--muted);" id="subCount">0 submissions</span>
+    </div>
+    <div class="submissions-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Problem</th>
+            <th>Status</th>
+            <th>Score</th>
+            <th>Tests Passed</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody id="submissionsBody"></tbody>
+      </table>
+      <div class="empty-state" id="subEmpty" style="display:none">
+        <i class="fas fa-inbox"></i>
+        <p>No submissions yet. Go solve a problem!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEACHER VIEW -->
+  <div id="teacherView" class="view">
+    <div class="view-header">
+      <h2><i class="fas fa-chalkboard-teacher" style="color:var(--accent)"></i> Teacher Dashboard</h2>
+      <p>Create tasks, manage problems, and export all grades</p>
+    </div>
+    <div class="teacher-grid">
+
+      <!-- Create Task -->
+      <div class="teacher-card">
+        <div class="teacher-card-header">
+          <i class="fas fa-plus-circle"></i> Create New Task
+        </div>
+        <div class="teacher-card-body">
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Task Title</label>
+              <input class="form-input" id="tTitle" placeholder="e.g. Hello World">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Topic</label>
+              <input class="form-input" id="tTopic" placeholder="e.g. Loops">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Difficulty</label>
+              <select class="form-input" id="tDiff">
+                <option>Easy</option>
+                <option>Medium</option>
+                <option>Hard</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Points</label>
+              <input class="form-input" id="tPoints" type="number" value="10" min="1" max="100">
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Description</label>
+            <textarea class="form-input" id="tDesc" placeholder="Describe the problem..."></textarea>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Constraints</label>
+            <textarea class="form-input" id="tConst" placeholder="• Input range..." style="min-height:60px"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Sample Input</label>
+              <textarea class="form-input" id="tSampleIn" style="min-height:60px; font-size:0.8rem" placeholder="3 7"></textarea>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Sample Output</label>
+              <textarea class="form-input" id="tSampleOut" style="min-height:60px; font-size:0.8rem" placeholder="10"></textarea>
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Starter Code</label>
+            <textarea class="form-input" id="tStarter" style="min-height:80px; font-size:0.78rem" placeholder="#include <iostream>&#10;using namespace std;&#10;&#10;int main() {&#10;    &#10;    return 0;&#10;}"></textarea>
+          </div>
+
+          <label class="form-label">Test Cases (hidden from students)</label>
+          <div id="testCasesContainer"></div>
+          <button class="btn-add-test" onclick="addTestCase()">+ Add Test Case</button>
+
+          <button class="btn-publish" onclick="generateTask()">
+            <i class="fas fa-code"></i> Generate JSON
+          </button>
+
+          <div id="generatedJson" class="json-export-area" style="margin-top:1rem"></div>
+        </div>
+      </div>
+
+      <!-- Manage & Export -->
+      <div class="teacher-card">
+        <div class="teacher-card-header">
+          <i class="fas fa-tasks"></i> Loaded Tasks
+        </div>
+        <div class="teacher-card-body" id="teacherTaskList"></div>
+
+        <div class="teacher-card-header" style="border-top:1px solid var(--border)">
+          <i class="fas fa-file-csv"></i> Export All Grades
+        </div>
+        <div class="teacher-card-body">
+          <p style="color:var(--muted); font-size:0.82rem; margin-bottom:0.8rem;">
+            Exports all student submission records from localStorage as CSV.
+          </p>
+          <button class="btn-export" onclick="exportAllGrades()" style="width:100%; justify-content:center; padding:0.6rem;">
+            <i class="fas fa-download"></i> Download Grades CSV
+          </button>
+        </div>
+
+        <div class="teacher-card-header" style="border-top:1px solid var(--border)">
+          <i class="fas fa-upload"></i> Load Custom tasks.json
+        </div>
+        <div class="teacher-card-body">
+          <p style="color:var(--muted); font-size:0.82rem; margin-bottom:0.8rem;">
+            Upload a tasks.json file to replace the current task list locally.
+          </p>
+          <input type="file" id="jsonUpload" accept=".json" onchange="loadJsonFile()" style="display:none">
+          <button class="btn-export" onclick="document.getElementById('jsonUpload').click()" style="width:100%; justify-content:center; padding:0.6rem;">
+            <i class="fas fa-folder-open"></i> Browse tasks.json
+          </button>
+        </div>
+
+        <div class="teacher-card-header" style="border-top:1px solid var(--border)">
+          <i class="fas fa-book"></i> GitHub Pages Setup Guide
+        </div>
+        <div class="teacher-card-body">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--muted2); line-height:1.8;">
+            <p style="color:var(--accent); margin-bottom:0.5rem;">1. Create GitHub repo</p>
+            <p>2. Upload <b style="color:var(--text)">index.html</b> + <b style="color:var(--text)">tasks.json</b></p>
+            <p>3. Settings → Pages → Deploy from main</p>
+            <p>4. Share the GitHub Pages URL to students</p>
+            <p style="margin-top:0.8rem; color:var(--green)">✓ 100% free, no backend needed</p>
+            <p style="color:var(--green)">✓ Code runs via Piston API (free)</p>
+            <p style="color:var(--green)">✓ Grades stored in student's browser</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════
+let tasks = [];
+let currentUser = null;
+let currentTask = null;
+let activeFilter = 'All';
+let loginMode = 'student';
+const TEACHER_PASS = 'teacher123'; // Change this!
+
+const PISTON_URL = 'https://emkc.org/api/v2/piston/execute';
+
+// ════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadTasks();
+  // Tab key in editor
+  document.getElementById('codeEditor').addEventListener('keydown', e => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const s = e.target.selectionStart, end = e.target.selectionEnd;
+      e.target.value = e.target.value.substring(0, s) + '    ' + e.target.value.substring(end);
+      e.target.selectionStart = e.target.selectionEnd = s + 4;
+    }
+  });
+});
+
+async function loadTasks() {
+  try {
+    const res = await fetch('tasks.json');
+    if (!res.ok) throw new Error('not found');
+    tasks = await res.json();
+    document.getElementById('tasksSourceHint').textContent = 'tasks.json ✓';
+  } catch {
+    // Fallback: demo tasks
+    tasks = getDemoTasks();
+    document.getElementById('tasksSourceHint').textContent = 'demo mode (no tasks.json)';
+  }
+}
+
+// ════════════════════════════════════════════
+//  AUTH
+// ════════════════════════════════════════════
+function switchLoginTab(mode) {
+  loginMode = mode;
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0 && mode === 'student') || (i === 1 && mode === 'teacher'));
+  });
+  document.getElementById('studentLoginForm').style.display = mode === 'student' ? '' : 'none';
+  document.getElementById('teacherLoginForm').style.display = mode === 'teacher' ? '' : 'none';
+}
+
+function loginStudent() {
+  const name = document.getElementById('studentName').value.trim();
+  const id   = document.getElementById('studentId').value.trim();
+  const sec  = document.getElementById('studentSection').value;
+  if (!name || !id || !sec) { showToast('Fill in all fields', 'error'); return; }
+  currentUser = { role: 'student', name, id, section: sec };
+  enterApp();
+}
+
+function loginTeacher() {
+  const pass = document.getElementById('teacherPass').value;
+  if (pass !== TEACHER_PASS) { showToast('Wrong password', 'error'); return; }
+  currentUser = { role: 'teacher', name: 'Teacher', id: 'TEACHER' };
+  enterApp();
+}
+
+function enterApp() {
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('appScreen').classList.add('active');
+
+  // Setup user display
+  const initials = currentUser.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('userLabel').textContent =
+    currentUser.role === 'teacher' ? 'Teacher' : `${currentUser.name} · ${currentUser.section}`;
+
+  // Setup nav for teacher
+  const navTabs = document.getElementById('navTabs');
+  if (currentUser.role === 'teacher') {
+    if (!document.querySelector('[data-view="teacherView"]')) {
+      const btn = document.createElement('button');
+      btn.className = 'nav-tab';
+      btn.setAttribute('data-view', 'teacherView');
+      btn.innerHTML = '<i class="fas fa-chalkboard-teacher"></i> Manage';
+      btn.onclick = () => showView('teacherView');
+      navTabs.appendChild(btn);
+    }
+  }
+
+  renderTaskList();
+  if (currentUser.role === 'teacher') renderTeacherPanel();
+}
+
+function logout() {
+  currentUser = null;
+  currentTask = null;
+  document.getElementById('appScreen').classList.remove('active');
+  document.getElementById('loginScreen').classList.add('active');
+  document.getElementById('studentName').value = '';
+  document.getElementById('studentId').value = '';
+  document.getElementById('teacherPass').value = '';
+  // Remove teacher nav button if present
+  const t = document.querySelector('[data-view="teacherView"]');
+  if (t) t.remove();
+  showView_internal('taskListView');
+}
+
+// ════════════════════════════════════════════
+//  TASK LIST
+// ════════════════════════════════════════════
+function renderTaskList() {
+  const subs = getMySubmissions();
+  const solved = new Set(subs.filter(s => s.status === 'AC').map(s => s.taskId));
+  const totalPts = tasks.reduce((a, t) => a + t.points, 0);
+  const earnedPts = [...solved].reduce((a, id) => {
+    const t = tasks.find(t => t.id === id);
+    return a + (t ? t.points : 0);
+  }, 0);
+
+  // Stats
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-item">
+      <span class="stat-val" style="color:var(--accent)">${tasks.length}</span>
+      <span class="stat-label">Problems</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val" style="color:var(--green)">${solved.size}</span>
+      <span class="stat-label">Solved</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val" style="color:var(--yellow)">${subs.length}</span>
+      <span class="stat-label">Submissions</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val">${earnedPts}<span style="font-size:0.7rem;color:var(--muted)">/${totalPts}</span></span>
+      <span class="stat-label">Points</span>
+      <div class="progress-bar"><div class="progress-fill" style="width:${totalPts ? (earnedPts/totalPts*100) : 0}%"></div></div>
+    </div>
+  `;
+
+  // Filters
+  const topics = ['All', ...new Set(tasks.map(t => t.topic))];
+  document.getElementById('filterRow').innerHTML = topics.map(tp =>
+    `<button class="filter-pill ${tp === activeFilter ? 'active' : ''}" onclick="filterTasks('${tp}', this)">${tp}</button>`
+  ).join('');
+
+  // Grid
+  const filtered = activeFilter === 'All' ? tasks : tasks.filter(t => t.topic === activeFilter);
+  document.getElementById('tasksGrid').innerHTML = filtered.map(task => {
+    const isSolved = solved.has(task.id);
+    return `
+      <div class="task-card ${isSolved ? 'solved' : ''}" onclick="openTask('${task.id}')">
+        <div class="card-top">
+          <span class="task-title">${task.title}</span>
+          <span class="diff-badge diff-${task.difficulty}">${task.difficulty}</span>
+        </div>
+        <p class="task-desc">${task.description.replace(/\n/g, ' ')}</p>
+        <div class="card-meta">
+          <span class="meta-tag"><i class="fas fa-tag"></i> ${task.topic}</span>
+          <span class="meta-tag"><i class="fas fa-list-check"></i> ${task.testCases.length} tests</span>
+          <span class="points-badge">${task.points} pts</span>
+          ${isSolved ? '<span class="solved-check"><i class="fas fa-check-circle"></i> Solved</span>' : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function filterTasks(topic, el) {
+  activeFilter = topic;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderTaskList();
+}
+
+// ════════════════════════════════════════════
+//  TASK DETAIL
+// ════════════════════════════════════════════
+function openTask(id) {
+  currentTask = tasks.find(t => t.id === id);
+  if (!currentTask) return;
+
+  document.getElementById('detailTitle').textContent = currentTask.title;
+  document.getElementById('detailDiff').textContent = currentTask.difficulty;
+  document.getElementById('detailDiff').className = `diff-badge diff-${currentTask.difficulty}`;
+  document.getElementById('detailDesc').textContent = currentTask.description;
+  document.getElementById('detailConstraints').textContent = currentTask.constraints || '—';
+  document.getElementById('detailSampleIn').textContent  = currentTask.sampleInput  || '(no input)';
+  document.getElementById('detailSampleOut').textContent = currentTask.sampleOutput || '—';
+  document.getElementById('detailPoints').textContent = `${currentTask.points} points · ${currentTask.testCases.length} test cases`;
+  document.getElementById('editorTaskLabel').textContent = currentTask.title;
+
+  // Load starter or last saved code
+  const saved = localStorage.getItem(`code_${currentUser.id}_${currentTask.id}`);
+  document.getElementById('codeEditor').value = saved || currentTask.starterCode || '';
+
+  // Reset output
+  document.getElementById('runOutput').innerHTML = '<span style="color:var(--muted)">// Output will appear here after running...</span>';
+  document.getElementById('judgeOutput').innerHTML = '<span style="color:var(--muted)">// Submit to see test case results...</span>';
+  document.getElementById('runStatus').textContent = '';
+  switchOutputTab('run', document.querySelector('.output-tab'));
+
+  showView('taskDetailView');
+}
+
+function switchOutputTab(tab, el) {
+  document.querySelectorAll('.output-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('runOutput').style.display   = tab === 'run'   ? '' : 'none';
+  document.getElementById('judgeOutput').style.display = tab === 'judge' ? '' : 'none';
+}
+
+// ════════════════════════════════════════════
+//  CODE EXECUTION (Piston API)
+// ════════════════════════════════════════════
+async function runCode(isSubmit) {
+  const code = document.getElementById('codeEditor').value.trim();
+  if (!code) { showToast('Write some code first!', 'error'); return; }
+
+  // Save code
+  localStorage.setItem(`code_${currentUser.id}_${currentTask.id}`, code);
+
+  const runBtn    = document.getElementById('runBtn');
+  const submitBtn = document.getElementById('submitBtn');
+  const statusEl  = document.getElementById('runStatus');
+
+  runBtn.disabled = submitBtn.disabled = true;
+  statusEl.innerHTML = '<span class="spinner"></span> Running...';
+
+  if (isSubmit) {
+    switchOutputTab('judge', document.querySelectorAll('.output-tab')[1]);
+    await judgeAllTests(code, statusEl);
+  } else {
+    switchOutputTab('run', document.querySelectorAll('.output-tab')[0]);
+    await runSingle(code, currentTask.sampleInput, statusEl);
+  }
+
+  runBtn.disabled = submitBtn.disabled = false;
+}
+
+async function executeCode(code, stdin) {
+  const resp = await fetch(PISTON_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      language: 'cpp',
+      version: '*',
+      files: [{ name: 'main.cpp', content: code }],
+      stdin: stdin || '',
+      compile_timeout: 10000,
+      run_timeout: 5000
+    })
+  });
+  if (!resp.ok) throw new Error(`API error ${resp.status}`);
+  return await resp.json();
+}
+
+async function runSingle(code, input, statusEl) {
+  try {
+    const result = await executeCode(code, input);
+    const out = document.getElementById('runOutput');
+
+    if (result.compile && result.compile.code !== 0) {
+      out.innerHTML = `<span style="color:var(--red)">Compile Error:</span>\n<span style="color:var(--muted2)">${escHtml(result.compile.stderr)}</span>`;
+      statusEl.innerHTML = '<span style="color:var(--red)"><i class="fas fa-times-circle"></i> Compile Error</span>';
+      return;
+    }
+
+    const stdout = result.run?.stdout || '';
+    const stderr = result.run?.stderr || '';
+    out.innerHTML = stdout
+      ? `<span style="color:var(--green)">stdout:</span>\n${escHtml(stdout)}`
+      : `<span style="color:var(--muted)">// (no output)</span>`;
+    if (stderr) out.innerHTML += `\n<span style="color:var(--yellow)">stderr:</span>\n${escHtml(stderr)}`;
+
+    statusEl.innerHTML = '<span style="color:var(--green)"><i class="fas fa-check"></i> Ran successfully</span>';
+  } catch(e) {
+    document.getElementById('runOutput').innerHTML = `<span style="color:var(--red)">Network error: ${e.message}</span>`;
+    statusEl.innerHTML = '<span style="color:var(--red)"><i class="fas fa-wifi"></i> Connection failed</span>';
+  }
+}
+
+async function judgeAllTests(code, statusEl) {
+  const tests = currentTask.testCases;
+  const judgeEl = document.getElementById('judgeOutput');
+  judgeEl.innerHTML = `<span style="color:var(--muted)">Running ${tests.length} test case(s)...</span>`;
+
+  let passed = 0, errorOccurred = false;
+  const rows = tests.map(() => ({ status: 'pending', got: '', expected: '' }));
+
+  function renderRows() {
+    judgeEl.innerHTML = rows.map((r, i) => {
+      const icon = r.status === 'pass' ? '<i class="fas fa-check pass"></i>'
+                 : r.status === 'fail' ? '<i class="fas fa-times fail"></i>'
+                 : r.status === 'err'  ? '<i class="fas fa-exclamation-triangle" style="color:var(--yellow)"></i>'
+                 : '<span class="spinner"></span>';
+      const label = r.status === 'pass' ? '<span class="pass">Accepted</span>'
+                  : r.status === 'fail' ? `<span class="fail">Wrong Answer</span>`
+                  : r.status === 'err'  ? `<span style="color:var(--yellow)">Error</span>`
+                  : '<span style="color:var(--muted)">Pending...</span>';
+      return `<div class="test-result-row">
+        <span class="icon">${icon}</span>
+        <span style="color:var(--muted2)">Test ${i + 1}</span>
+        <span>${label}</span>
+        ${r.status === 'fail' ? `<span style="color:var(--muted); font-size:0.7rem; margin-left:auto">got: ${escHtml(r.got.substring(0,30))} | expected: ${escHtml(r.expected.substring(0,30))}</span>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  renderRows();
+
+  for (let i = 0; i < tests.length; i++) {
+    try {
+      const result = await executeCode(code, tests[i].input);
+
+      if (result.compile && result.compile.code !== 0) {
+        rows[i] = { status: 'err', got: 'Compile Error', expected: tests[i].expected };
+        errorOccurred = true;
+        for (let j = i + 1; j < tests.length; j++) rows[j].status = 'err';
+        renderRows();
+        break;
+      }
+
+      const got = (result.run?.stdout || '').trimEnd();
+      const expected = tests[i].expected.trimEnd();
+
+      if (got === expected) {
+        rows[i] = { status: 'pass', got, expected };
+        passed++;
+      } else {
+        rows[i] = { status: 'fail', got, expected };
+      }
+    } catch(e) {
+      rows[i] = { status: 'err', got: 'Network error', expected: tests[i].expected };
+      errorOccurred = true;
+    }
+    renderRows();
+  }
+
+  const finalStatus = passed === tests.length ? 'AC' : (errorOccurred ? 'ERR' : 'WA');
+  const score = Math.round((passed / tests.length) * currentTask.points);
+
+  // Save submission
+  saveSubmission({
+    taskId: currentTask.id,
+    taskTitle: currentTask.title,
+    status: finalStatus,
+    passed,
+    total: tests.length,
+    score,
+    maxScore: currentTask.points,
+    timestamp: new Date().toISOString()
+  });
+
+  // Summary row
+  const sumColor = finalStatus === 'AC' ? 'var(--green)' : finalStatus === 'WA' ? 'var(--red)' : 'var(--yellow)';
+  judgeEl.innerHTML += `
+    <div style="margin-top:0.8rem; padding:0.6rem; background:rgba(255,255,255,0.03); border-radius:8px; border:1px solid var(--border2);">
+      <span style="color:${sumColor}; font-weight:700; font-family:'JetBrains Mono',monospace;">
+        ${finalStatus} — ${passed}/${tests.length} passed · ${score}/${currentTask.points} pts
+      </span>
+    </div>`;
+
+  statusEl.innerHTML = finalStatus === 'AC'
+    ? `<span style="color:var(--green)"><i class="fas fa-trophy"></i> All tests passed!</span>`
+    : `<span style="color:var(--red)"><i class="fas fa-times-circle"></i> ${passed}/${tests.length} passed</span>`;
+
+  if (finalStatus === 'AC') {
+    showToast(`✓ Accepted! +${score} pts`, 'success');
+    renderTaskList();
+  } else {
+    showToast(`${passed}/${tests.length} test cases passed`, 'error');
+  }
+}
+
+// ════════════════════════════════════════════
+//  SUBMISSIONS
+// ════════════════════════════════════════════
+function getMySubmissions() {
+  if (!currentUser) return [];
+  const key = `subs_${currentUser.id}`;
+  return JSON.parse(localStorage.getItem(key) || '[]');
+}
+
+function saveSubmission(sub) {
+  const key = `subs_${currentUser.id}`;
+  const subs = getMySubmissions();
+  subs.unshift(sub);
+  localStorage.setItem(key, JSON.stringify(subs));
+  renderSubmissions();
+}
+
+function renderSubmissions() {
+  const subs = getMySubmissions();
+  document.getElementById('subCount').textContent = `${subs.length} submission${subs.length !== 1 ? 's' : ''}`;
+
+  const tbody = document.getElementById('submissionsBody');
+  if (subs.length === 0) {
+    tbody.innerHTML = '';
+    document.getElementById('subEmpty').style.display = '';
+    return;
+  }
+  document.getElementById('subEmpty').style.display = 'none';
+  tbody.innerHTML = subs.map(s => `
+    <tr>
+      <td>${s.taskTitle}</td>
+      <td><span class="status-badge status-${s.status}">${
+        s.status === 'AC' ? '✓ Accepted' : s.status === 'WA' ? '✗ Wrong Answer' : '⚠ Error'
+      }</span></td>
+      <td style="color:var(--accent)">${s.score}/${s.maxScore}</td>
+      <td>${s.passed}/${s.total}</td>
+      <td>${new Date(s.timestamp).toLocaleString()}</td>
+    </tr>
+  `).join('');
+}
+
+function exportMyCSV() {
+  const subs = getMySubmissions();
+  if (!subs.length) { showToast('No submissions to export', 'error'); return; }
+  const header = 'Name,Student ID,Section,Problem,Status,Score,Max Score,Tests Passed,Total Tests,Timestamp';
+  const rows = subs.map(s =>
+    `"${currentUser.name}","${currentUser.id}","${currentUser.section}","${s.taskTitle}","${s.status}",${s.score},${s.maxScore},${s.passed},${s.total},"${s.timestamp}"`
+  );
+  downloadCSV([header, ...rows].join('\n'), `my_submissions_${currentUser.id}.csv`);
+}
+
+function exportAllGrades() {
+  const header = 'Name,Student ID,Section,Problem,Status,Score,Max Score,Tests Passed,Total Tests,Timestamp';
+  const allRows = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key.startsWith('subs_')) continue;
+    try {
+      const subs = JSON.parse(localStorage.getItem(key));
+      // We don't have name/section in subs_key directly unless we also save user info
+      const uid = key.replace('subs_', '');
+      const userInfo = JSON.parse(localStorage.getItem(`user_${uid}`) || 'null');
+      subs.forEach(s => {
+        allRows.push(`"${userInfo?.name || uid}","${uid}","${userInfo?.section || ''}","${s.taskTitle}","${s.status}",${s.score},${s.maxScore},${s.passed},${s.total},"${s.timestamp}"`);
+      });
+    } catch {}
+  }
+  if (!allRows.length) { showToast('No grade data found in this browser', 'error'); return; }
+  downloadCSV([header, ...allRows].join('\n'), `all_grades_${new Date().toISOString().split('T')[0]}.csv`);
+  showToast(`Exported ${allRows.length} records`, 'success');
+}
+
+// Save user info on login for grade export
+function saveUserInfo() {
+  if (!currentUser) return;
+  localStorage.setItem(`user_${currentUser.id}`, JSON.stringify({
+    name: currentUser.name, section: currentUser.section
+  }));
+}
+
+// ════════════════════════════════════════════
+//  TEACHER PANEL
+// ════════════════════════════════════════════
+function renderTeacherPanel() {
+  const list = document.getElementById('teacherTaskList');
+  list.innerHTML = tasks.map((t, i) => `
+    <div class="task-manage-row">
+      <span>${i + 1}. ${t.title}</span>
+      <span class="diff-badge diff-${t.difficulty}">${t.difficulty}</span>
+      <span style="color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:0.75rem">${t.points}pt</span>
+    </div>
+  `).join('') || '<p style="color:var(--muted); font-size:0.82rem">No tasks loaded.</p>';
+
+  addTestCase(); // Start with one test case
+}
+
+let testCaseCount = 0;
+function addTestCase() {
+  testCaseCount++;
+  const id = `tc_${testCaseCount}`;
+  const div = document.createElement('div');
+  div.className = 'test-case-row';
+  div.id = id;
+  div.innerHTML = `
+    <div>
+      <label class="form-label">Input #${testCaseCount}</label>
+      <textarea class="form-input" data-tc-input style="min-height:50px; font-size:0.78rem" placeholder="3 7"></textarea>
+    </div>
+    <div>
+      <label class="form-label">Expected Output</label>
+      <textarea class="form-input" data-tc-output style="min-height:50px; font-size:0.78rem" placeholder="10"></textarea>
+    </div>
+    <div>
+      <label class="form-label">&nbsp;</label>
+      <button class="btn-remove" onclick="document.getElementById('${id}').remove()"><i class="fas fa-trash"></i></button>
+    </div>
+  `;
+  document.getElementById('testCasesContainer').appendChild(div);
+}
+
+function generateTask() {
+  const title = document.getElementById('tTitle').value.trim();
+  if (!title) { showToast('Task title required', 'error'); return; }
+
+  const testInputs  = [...document.querySelectorAll('[data-tc-input]')].map(e => e.value);
+  const testOutputs = [...document.querySelectorAll('[data-tc-output]')].map(e => e.value);
+  const testCases = testInputs.map((inp, i) => ({ input: inp, expected: testOutputs[i] || '' }));
+
+  const task = {
+    id: 'task_' + Date.now(),
+    title,
+    difficulty: document.getElementById('tDiff').value,
+    points: parseInt(document.getElementById('tPoints').value) || 10,
+    topic: document.getElementById('tTopic').value.trim() || 'General',
+    description: document.getElementById('tDesc').value.trim(),
+    constraints: document.getElementById('tConst').value.trim(),
+    sampleInput: document.getElementById('tSampleIn').value.trim(),
+    sampleOutput: document.getElementById('tSampleOut').value.trim(),
+    testCases,
+    starterCode: document.getElementById('tStarter').value.trim() || '#include <iostream>\nusing namespace std;\n\nint main() {\n    \n    return 0;\n}'
+  };
+
+  const json = JSON.stringify([task], null, 2);
+  const area = document.getElementById('generatedJson');
+  area.style.display = '';
+  area.textContent = json;
+
+  // Also download
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'new_task.json'; a.click();
+  URL.revokeObjectURL(url);
+
+  showToast('Task JSON generated & downloaded!', 'success');
+}
+
+function loadJsonFile() {
+  const file = document.getElementById('jsonUpload').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      tasks = JSON.parse(e.target.result);
+      renderTaskList();
+      renderTeacherPanel();
+      showToast(`Loaded ${tasks.length} tasks`, 'success');
+    } catch { showToast('Invalid JSON file', 'error'); }
+  };
+  reader.readAsText(file);
+}
+
+// ════════════════════════════════════════════
+//  VIEW MANAGEMENT
+// ════════════════════════════════════════════
+function showView(id) {
+  showView_internal(id);
+  if (id === 'submissionsView') renderSubmissions();
+  if (id === 'taskListView') renderTaskList();
+}
+
+function showView_internal(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    t.classList.toggle('active', t.getAttribute('data-view') === id);
+  });
+}
+
+// ════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showToast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'info-circle'}"></i> ${msg}`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+function downloadCSV(content, filename) {
+  const blob = new Blob([content], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function getDemoTasks() {
+  return [
+    {
+      id: 'demo_1', title: 'Hello, World!', difficulty: 'Easy', points: 10, topic: 'Basics',
+      description: 'Print "Hello, World!" to the screen.',
+      constraints: '• No input required', sampleInput: '', sampleOutput: 'Hello, World!',
+      testCases: [{ input: '', expected: 'Hello, World!' }],
+      starterCode: '#include <iostream>\nusing namespace std;\n\nint main() {\n    // Your code here\n    return 0;\n}'
+    },
+    {
+      id: 'demo_2', title: 'Sum of Two Numbers', difficulty: 'Easy', points: 15, topic: 'Variables & I/O',
+      description: 'Read two integers and print their sum.\nInput: 3 7\nOutput: 10',
+      constraints: '• Two integers on one line', sampleInput: '3 7', sampleOutput: '10',
+      testCases: [{ input: '3 7', expected: '10' }, { input: '0 0', expected: '0' }, { input: '-5 15', expected: '10' }],
+      starterCode: '#include <iostream>\nusing namespace std;\n\nint main() {\n    int a, b;\n    cin >> a >> b;\n    // Your code here\n    return 0;\n}'
+    }
+  ];
+}
+
+// Patch login to also save user info
+const origLoginStudent = loginStudent;
+loginStudent = function() {
+  const name = document.getElementById('studentName').value.trim();
+  const id   = document.getElementById('studentId').value.trim();
+  const sec  = document.getElementById('studentSection').value;
+  if (!name || !id || !sec) { showToast('Fill in all fields', 'error'); return; }
+  currentUser = { role: 'student', name, id, section: sec };
+  saveUserInfo();
+  enterApp();
+}
+</script>
+</body>
+</html>

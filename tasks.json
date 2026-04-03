@@ -1,0 +1,88 @@
+[
+  {
+    "id": "task_001",
+    "title": "Hello, World!",
+    "difficulty": "Easy",
+    "points": 10,
+    "topic": "Basics",
+    "description": "Write a C++ program that prints exactly:\n\nHello, World!\n\nMake sure the output matches exactly, including capitalization and punctuation.",
+    "constraints": "• No input required\n• Output must match exactly",
+    "sampleInput": "",
+    "sampleOutput": "Hello, World!",
+    "testCases": [
+      { "input": "", "expected": "Hello, World!" }
+    ],
+    "starterCode": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Your code here\n    \n    return 0;\n}"
+  },
+  {
+    "id": "task_002",
+    "title": "Sum of Two Numbers",
+    "difficulty": "Easy",
+    "points": 15,
+    "topic": "Variables & I/O",
+    "description": "Read two integers from input and print their sum.\n\nExample:\nInput: 3 7\nOutput: 10",
+    "constraints": "• Two integers on one line separated by space\n• -1000 ≤ a, b ≤ 1000",
+    "sampleInput": "3 7",
+    "sampleOutput": "10",
+    "testCases": [
+      { "input": "3 7", "expected": "10" },
+      { "input": "0 0", "expected": "0" },
+      { "input": "-5 15", "expected": "10" },
+      { "input": "100 200", "expected": "300" }
+    ],
+    "starterCode": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int a, b;\n    cin >> a >> b;\n    // Your code here\n    \n    return 0;\n}"
+  },
+  {
+    "id": "task_003",
+    "title": "Even or Odd",
+    "difficulty": "Easy",
+    "points": 15,
+    "topic": "Conditionals",
+    "description": "Given an integer N, print \"Even\" if it is even, or \"Odd\" if it is odd.",
+    "constraints": "• One integer per line\n• -10000 ≤ N ≤ 10000",
+    "sampleInput": "4",
+    "sampleOutput": "Even",
+    "testCases": [
+      { "input": "4", "expected": "Even" },
+      { "input": "7", "expected": "Odd" },
+      { "input": "0", "expected": "Even" },
+      { "input": "-3", "expected": "Odd" }
+    ],
+    "starterCode": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    // Your code here\n    \n    return 0;\n}"
+  },
+  {
+    "id": "task_004",
+    "title": "Count to N",
+    "difficulty": "Medium",
+    "points": 20,
+    "topic": "Loops",
+    "description": "Given a positive integer N, print all numbers from 1 to N, each on a separate line.",
+    "constraints": "• 1 ≤ N ≤ 100",
+    "sampleInput": "5",
+    "sampleOutput": "1\n2\n3\n4\n5",
+    "testCases": [
+      { "input": "5", "expected": "1\n2\n3\n4\n5" },
+      { "input": "1", "expected": "1" },
+      { "input": "3", "expected": "1\n2\n3" }
+    ],
+    "starterCode": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    // Your code here\n    \n    return 0;\n}"
+  },
+  {
+    "id": "task_005",
+    "title": "Factorial",
+    "difficulty": "Medium",
+    "points": 25,
+    "topic": "Loops",
+    "description": "Compute the factorial of a given non-negative integer N.\n\nFactorial of N (written N!) = 1 × 2 × 3 × ... × N\nFactorial of 0 = 1",
+    "constraints": "• 0 ≤ N ≤ 12",
+    "sampleInput": "5",
+    "sampleOutput": "120",
+    "testCases": [
+      { "input": "5", "expected": "120" },
+      { "input": "0", "expected": "1" },
+      { "input": "1", "expected": "1" },
+      { "input": "10", "expected": "3628800" }
+    ],
+    "starterCode": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    // Your code here\n    \n    return 0;\n}"
+  }
+]
