@@ -1277,9 +1277,15 @@ let currentTask = null;
 let activeFilter = 'All';
 let loginMode = 'student';
 const TEACHER_PASS = 'teacher123'; // Change this!
-
-const PISTON_URL = 'https://emkc.org/api/v2/piston/execute';
-
+  //STUDENT ROSTER
+const ROSTER = [
+  { name: "Juan dela Cruz",    id: "2023-00001", section: "BSIT 1-A" },
+  { name: "Maria Santos",      id: "2023-00002", section: "BSIT 1-A" },
+  { name: "Pedro Reyes",       id: "2023-00003", section: "BSIT 1-B" },
+  
+];
+//API
+const PISTON_URL = 'https://piston-api.fly.dev/api/v2/execute';
 // ════════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════════
@@ -1884,7 +1890,18 @@ loginStudent = function() {
   const id   = document.getElementById('studentId').value.trim();
   const sec  = document.getElementById('studentSection').value;
   if (!name || !id || !sec) { showToast('Fill in all fields', 'error'); return; }
-  currentUser = { role: 'student', name, id, section: sec };
+
+  const match = ROSTER.find(s =>
+    s.id.toLowerCase() === id.toLowerCase() &&
+    s.name.toLowerCase() === name.toLowerCase()
+  );
+
+  if (!match) {
+    showToast('Student not found in roster. Check your name and ID.', 'error');
+    return;
+  }
+
+  currentUser = { role: 'student', name: match.name, id: match.id, section: match.section };
   saveUserInfo();
   enterApp();
 }
